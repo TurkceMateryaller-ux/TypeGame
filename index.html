@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#11133f">
+  <title>Космический переводчик</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="space-bg" aria-hidden="true">
+    <div class="stars stars-a"></div><div class="stars stars-b"></div>
+    <div class="planet planet-one"></div><div class="planet planet-two"></div>
+  </div>
+
+  <button class="sound-button" id="soundButton" type="button" aria-label="Выключить звук" title="Звук">🔊</button>
+
+  <main class="app" id="app">
+    <section class="screen active" id="homeScreen" aria-labelledby="gameTitle">
+      <div class="hero panel">
+        <div class="hero-ship" aria-hidden="true">🚀<span></span></div>
+        <p class="eyebrow">Учебная космическая миссия</p>
+        <h1 id="gameTitle">Космический<br><span>переводчик</span></h1>
+        <p class="lead">Печатай слова и исследуй новые планеты!</p>
+        <div class="home-actions">
+          <button class="button primary" id="startButton" type="button">Начать игру <span>→</span></button>
+          <button class="button secondary" id="howButton" type="button">Как играть</button>
+        </div>
+        <div class="best-card" id="bestCard" aria-live="polite">
+          <span class="best-icon">🏆</span>
+          <div><small>Лучший результат</small><strong id="bestScore">Пока нет рекорда</strong></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="screen" id="setupScreen" aria-labelledby="setupTitle">
+      <div class="setup panel">
+        <button class="back-button" id="setupBack" type="button" aria-label="Вернуться в главное меню">←</button>
+        <p class="eyebrow">Центр управления</p>
+        <h2 id="setupTitle">Настрой миссию</h2>
+
+        <fieldset class="choice-group">
+          <legend><span>1</span> Выбери язык слов</legend>
+          <div class="choice-row two" id="languageChoices">
+            <button class="choice language" type="button" data-value="ru"><b>АБВ</b><span>Русский</span></button>
+            <button class="choice language" type="button" data-value="tr"><b>ABC</b><span>Türkçe</span></button>
+          </div>
+        </fieldset>
+
+        <fieldset class="choice-group">
+          <legend><span>2</span> Выбери тему</legend>
+          <div class="choice-row topics" id="topicChoices">
+            <button class="choice topic" type="button" data-value="animals"><b>🐾</b><span>Животные</span></button>
+            <button class="choice topic" type="button" data-value="space"><b>🪐</b><span>Космос</span></button>
+            <button class="choice topic" type="button" data-value="school"><b>📚</b><span>Школа</span></button>
+            <button class="choice topic" type="button" data-value="food"><b>🍎</b><span>Еда</span></button>
+            <button class="choice topic" type="button" data-value="sport"><b>🏀</b><span>Спорт</span></button>
+          </div>
+        </fieldset>
+
+        <fieldset class="choice-group">
+          <legend><span>3</span> Выбери сложность</legend>
+          <div class="choice-row three" id="difficultyChoices">
+            <button class="choice difficulty" type="button" data-value="easy"><b>Легко</b><small>10 слов · 5 энергии</small></button>
+            <button class="choice difficulty" type="button" data-value="medium"><b>Средне</b><small>15 слов · 4 энергии</small></button>
+            <button class="choice difficulty" type="button" data-value="hard"><b>Сложно</b><small>20 слов · 3 энергии</small></button>
+          </div>
+        </fieldset>
+        <button class="button primary launch" id="launchButton" type="button" disabled>Начать миссию 🚀</button>
+      </div>
+    </section>
+
+    <section class="screen game-screen" id="gameScreen" aria-labelledby="missionLabel">
+      <div class="game-wrap">
+        <header class="hud">
+          <div class="mission-name"><span class="mini-rocket">🚀</span><div><small>МИССИЯ</small><strong id="missionLabel">Космос · Русский</strong></div></div>
+          <div class="hud-stats">
+            <div><small>СЧЁТ</small><strong id="scoreValue">0</strong></div>
+            <div><small>СЛОВО</small><strong id="progressValue">1 / 10</strong></div>
+            <div><small>СЕРИЯ</small><strong id="streakValue">×0</strong></div>
+            <div><small>ВРЕМЯ</small><strong id="timeValue">0:00</strong></div>
+            <div><small>ТОЧНОСТЬ</small><strong id="accuracyValue">100%</strong></div>
+          </div>
+          <button class="pause-button" id="pauseButton" type="button" aria-label="Поставить игру на паузу">Ⅱ</button>
+        </header>
+
+        <div class="flight-zone" id="flightZone">
+          <div class="energy" aria-live="polite"><span>ЭНЕРГИЯ</span><div id="energyPips"></div></div>
+          <div class="toast" id="toast" aria-live="polite"></div>
+          <div class="word-capsule" id="wordCapsule">
+            <div class="capsule-ring"></div>
+            <div class="target-word" id="targetWord" aria-live="polite"></div>
+            <small>ПЕЧАТАЙ СЛОВО</small>
+          </div>
+          <div class="ship-game" id="shipGame" aria-hidden="true">
+            <span class="ship-body">🚀</span><i class="flame"></i>
+          </div>
+          <div class="input-dock">
+            <label for="wordInput">Вводи здесь</label>
+            <input id="wordInput" type="text" inputmode="text" autocomplete="off" autocapitalize="none" spellcheck="false" aria-describedby="inputHint">
+            <span id="inputHint">Enter нажимать не нужно</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="screen" id="resultScreen" aria-labelledby="resultTitle">
+      <div class="results panel">
+        <p class="eyebrow">Миссия завершена</p>
+        <div class="result-badge" id="resultBadge">🏆</div>
+        <h2 id="resultTitle">Отличный полёт!</h2>
+        <div class="stars-result" id="starsResult" aria-label="Полученные звёзды">★★★</div>
+        <p class="result-score"><span id="resultScore">0</span><small> очков</small></p>
+        <div class="result-grid">
+          <div><span>✓</span><small>Напечатано</small><strong id="resultCompleted">0</strong></div>
+          <div><span>↗</span><small>Пропущено</small><strong id="resultMissed">0</strong></div>
+          <div><span>◎</span><small>Точность</small><strong id="resultAccuracy">100%</strong></div>
+          <div><span>⌨</span><small>Знаков/мин</small><strong id="resultCpm">0</strong></div>
+          <div><span>⚡</span><small>Лучшая серия</small><strong id="resultStreak">×0</strong></div>
+          <div><span>◷</span><small>Время</small><strong id="resultTime">0:00</strong></div>
+        </div>
+        <div class="result-actions">
+          <button class="button primary" id="retryButton" type="button">Повторить миссию</button>
+          <button class="button secondary" id="nextTopicButton" type="button">Следующая тема</button>
+          <button class="button ghost" id="menuButton" type="button">Главное меню</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div class="modal-backdrop hidden" id="howModal" role="dialog" aria-modal="true" aria-labelledby="howTitle">
+    <div class="modal panel">
+      <button class="modal-close" id="howClose" type="button" aria-label="Закрыть инструкцию">×</button>
+      <div class="modal-icon">🧑‍🚀</div>
+      <p class="eyebrow">Инструктаж экипажа</p>
+      <h2 id="howTitle">Как играть</h2>
+      <ol>
+        <li><span>1</span><p><b>Выбери миссию</b><br>Язык, тему слов и сложность.</p></li>
+        <li><span>2</span><p><b>Печатай слово</b><br>Оно летит к твоему кораблю.</p></li>
+        <li><span>3</span><p><b>Исправляй ошибки</b><br>Используй клавишу Backspace.</p></li>
+        <li><span>4</span><p><b>Собирай серии</b><br>Точные ответы заряжают двигатель.</p></li>
+        <li><span>5</span><p><b>Получи три звезды</b><br>Сохрани точность не ниже 95%.</p></li>
+      </ol>
+      <button class="button primary" id="howAccept" type="button">Понятно, начинаем!</button>
+    </div>
+  </div>
+
+  <div class="modal-backdrop hidden" id="pauseModal" role="dialog" aria-modal="true" aria-labelledby="pauseTitle">
+    <div class="modal pause-modal panel">
+      <div class="modal-icon">⏸</div><h2 id="pauseTitle">Миссия на паузе</h2>
+      <p>Корабль ждёт твоего возвращения.</p>
+      <button class="button primary" id="resumeButton" type="button">Продолжить</button>
+      <button class="button ghost" id="quitButton" type="button">Выйти в меню</button>
+    </div>
+  </div>
+
+  <script src="game.js"></script>
+</body>
+</html>
