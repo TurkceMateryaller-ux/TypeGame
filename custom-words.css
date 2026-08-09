@@ -1,3 +1,9 @@
+.author-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+}
 .choice-row.topics { grid-template-columns: repeat(3, 1fr); }
 .custom-words {
   margin: 18px 0 24px;
