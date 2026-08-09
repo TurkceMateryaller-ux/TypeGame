@@ -23,14 +23,14 @@
     medium: { count: 15, energy: 4, min: 5, max: 9, duration: 14500 },
     hard: { count: 20, energy: 3, min: 7, max: 30, duration: 11500 }
   };
-  const TOPICS = ["animals", "space", "school", "food", "sport"];
-  const TOPIC_NAMES = { animals: "Животные", space: "Космос", school: "Школа", food: "Еда", sport: "Спорт" };
+  const TOPICS = ["animals", "space", "school", "food", "sport", "custom"];
+  const TOPIC_NAMES = { animals: "Животные", space: "Космос", school: "Школа", food: "Еда", sport: "Спорт", custom: "Свои слова" };
   const STORAGE_KEY = "spaceTranslator.v1";
   const $ = id => document.getElementById(id);
   const screens = [...document.querySelectorAll(".screen")];
-  const els = Object.fromEntries(["homeScreen","setupScreen","gameScreen","resultScreen","soundButton","startButton","howButton","bestScore","setupBack","launchButton","missionLabel","scoreValue","progressValue","streakValue","timeValue","accuracyValue","pauseButton","flightZone","energyPips","toast","wordCapsule","targetWord","wordInput","resultTitle","starsResult","resultScore","resultCompleted","resultMissed","resultAccuracy","resultCpm","resultStreak","resultTime","retryButton","nextTopicButton","menuButton","howModal","howClose","howAccept","pauseModal","resumeButton","quitButton"].map(id => [id, $(id)]));
+  const els = Object.fromEntries(["homeScreen","setupScreen","gameScreen","resultScreen","soundButton","startButton","howButton","bestScore","setupBack","launchButton","customWordsPanel","customWords","customWordsStatus","missionLabel","scoreValue","progressValue","streakValue","timeValue","accuracyValue","pauseButton","flightZone","energyPips","toast","wordCapsule","targetWord","wordInput","resultTitle","starsResult","resultScore","resultCompleted","resultMissed","resultAccuracy","resultCpm","resultStreak","resultTime","retryButton","nextTopicButton","menuButton","howModal","howClose","howAccept","pauseModal","resumeButton","quitButton"].map(id => [id, $(id)]));
 
-  const defaults = { sound: true, tutorialSeen: false, last: { language: "ru", topic: "space", difficulty: "easy" }, records: { ru: { score: 0, accuracy: 0, cpm: 0 }, tr: { score: 0, accuracy: 0, cpm: 0 } } };
+  const defaults = { sound: true, tutorialSeen: false, customWords: [], last: { language: "tr", topic: "space", difficulty: "easy" }, records: { tr: { score: 0, accuracy: 0, cpm: 0 } } };
   let saved = loadSaved();
   let audioContext = null;
   let animationId = 0;
@@ -41,19 +41,19 @@
   let state = freshState();
 
   function freshState() {
-    return { language: saved?.last?.language || "ru", topic: saved?.last?.topic || "space", difficulty: saved?.last?.difficulty || "easy", words: [], currentIndex: 0, currentWord: "", score: 0, energy: 5, streak: 0, bestStreak: 0, correctKeystrokes: 0, incorrectKeystrokes: 0, completedWords: 0, missedWords: 0, elapsedTime: 0, startedAt: 0, pauseStartedAt: 0, pausedTotal: 0, objectStartedAt: 0, paused: false, running: false };
+    return { language: "tr", topic: saved?.last?.topic || "space", difficulty: saved?.last?.difficulty || "easy", words: [], currentIndex: 0, currentWord: "", score: 0, energy: 5, streak: 0, bestStreak: 0, correctKeystrokes: 0, incorrectKeystrokes: 0, completedWords: 0, missedWords: 0, elapsedTime: 0, startedAt: 0, pauseStartedAt: 0, pausedTotal: 0, objectStartedAt: 0, paused: false, running: false };
   }
 
   function loadSaved() {
     try {
       const parsed = JSON.parse(localStorage.getItem(STORAGE_KEY));
-      return { ...defaults, ...(parsed || {}), last: { ...defaults.last, ...(parsed?.last || {}) }, records: { ru: { ...defaults.records.ru, ...(parsed?.records?.ru || {}) }, tr: { ...defaults.records.tr, ...(parsed?.records?.tr || {}) } } };
+      return { ...defaults, ...(parsed || {}), customWords: Array.isArray(parsed?.customWords) ? parsed.customWords : [], last: { ...defaults.last, ...(parsed?.last || {}), language: "tr" }, records: { tr: { ...defaults.records.tr, ...(parsed?.records?.tr || {}) } } };
     } catch { return structuredCloneSafe(defaults); }
   }
   function structuredCloneSafe(value) { return JSON.parse(JSON.stringify(value)); }
   function save() { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(saved)); } catch {} }
   function showScreen(screen) { screens.forEach(s => s.classList.toggle("active", s === screen)); }
-  function localeLower(value) { return value.toLocaleLowerCase(state.language === "tr" ? "tr-TR" : "ru-RU"); }
+  function localeLower(value) { return value.toLocaleLowerCase("tr-TR"); }
   function normalized(value) { return localeLower(value.trim()); }
   function shuffle(items) { const a = [...items]; for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
   function formatTime(seconds) { const s = Math.max(0, Math.floor(seconds)); return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`; }
@@ -62,7 +62,7 @@
   function cpm() { const seconds = activeSeconds(); return seconds > 0 ? Math.round(state.correctKeystrokes / seconds * 60) : 0; }
 
   function updateBestCard() {
-    const best = Math.max(saved.records.ru.score, saved.records.tr.score);
+    const best = saved.records.tr.score;
     els.bestScore.textContent = best ? `${best.toLocaleString("ru-RU")} очков` : "Пока нет рекорда";
     els.soundButton.textContent = saved.sound ? "🔊" : "🔇";
     els.soundButton.setAttribute("aria-label", saved.sound ? "Выключить звук" : "Включить звук");
@@ -84,12 +84,23 @@
   }
 
   function openSetup() { sound("click"); showScreen(els.setupScreen); syncChoices(); }
+  function readCustomWords() {
+    return [...new Set(els.customWords.value.split(/[\n,;]+/).map(word => word.trim()).filter(Boolean))];
+  }
+  function updateCustomWords() {
+    saved.customWords = readCustomWords(); save();
+    const count = saved.customWords.length;
+    els.customWordsStatus.textContent = count ? `Слов в тренировке: ${count}` : "Добавь хотя бы одно слово";
+    els.customWordsStatus.classList.toggle("valid", count > 0); syncChoices();
+  }
   function syncChoices() {
     document.querySelectorAll(".choice").forEach(button => {
       const selected = (button.classList.contains("language") && button.dataset.value === state.language) || (button.classList.contains("topic") && button.dataset.value === state.topic) || (button.classList.contains("difficulty") && button.dataset.value === state.difficulty);
       button.classList.toggle("selected", selected); button.setAttribute("aria-pressed", String(selected));
     });
-    els.launchButton.disabled = !(state.language && state.topic && state.difficulty);
+    const customReady = state.topic !== "custom" || readCustomWords().length > 0;
+    els.customWordsPanel.classList.toggle("hidden", state.topic !== "custom");
+    els.launchButton.disabled = !(state.topic && state.difficulty && customReady);
   }
   function selectChoice(button) {
     if (button.classList.contains("language")) state.language = button.dataset.value;
@@ -99,6 +110,7 @@
   }
 
   function buildMissionWords() {
+    if (state.topic === "custom") return shuffle(saved.customWords);
     const cfg = CONFIG[state.difficulty], all = WORDS[state.language][state.topic];
     const preferred = all.filter(word => [...word].length >= cfg.min && [...word].length <= cfg.max);
     const rest = all.filter(word => !preferred.includes(word));
@@ -109,7 +121,7 @@
     const selection = { language: state.language, topic: state.topic, difficulty: state.difficulty };
     state = { ...freshState(), ...selection };
     const cfg = CONFIG[state.difficulty]; state.words = buildMissionWords(); state.energy = cfg.energy; state.running = true; state.startedAt = performance.now();
-    els.missionLabel.textContent = `${TOPIC_NAMES[state.topic]} · ${state.language === "ru" ? "Русский" : "Türkçe"}`;
+    els.missionLabel.textContent = `${TOPIC_NAMES[state.topic]} · Türkçe`;
     showScreen(els.gameScreen); updateHud(); nextWord();
     timerId = setInterval(updateHud, 250); sound("click");
   }
@@ -202,11 +214,13 @@
   els.wordInput.addEventListener("input", handleInput); els.wordInput.addEventListener("paste", event => event.preventDefault()); els.wordInput.addEventListener("drop", event => event.preventDefault());
   els.wordInput.addEventListener("keydown", event => { if ((event.ctrlKey || event.metaKey) && ["v","x","z"].includes(event.key.toLowerCase())) event.preventDefault(); });
   els.pauseButton.addEventListener("click", () => pauseGame(false)); els.resumeButton.addEventListener("click", resumeGame); els.quitButton.addEventListener("click", quitMission);
-  els.retryButton.addEventListener("click", startMission); els.nextTopicButton.addEventListener("click", () => { state.topic = TOPICS[(TOPICS.indexOf(state.topic) + 1) % TOPICS.length]; saved.last.topic = state.topic; save(); startMission(); }); els.menuButton.addEventListener("click", () => { showScreen(els.homeScreen); updateBestCard(); });
+  els.retryButton.addEventListener("click", startMission); els.nextTopicButton.addEventListener("click", () => { state.topic = TOPICS[(TOPICS.indexOf(state.topic) + 1) % TOPICS.length]; saved.last.topic = state.topic; save(); if (state.topic === "custom" && !saved.customWords.length) openSetup(); else startMission(); }); els.menuButton.addEventListener("click", () => { showScreen(els.homeScreen); updateBestCard(); });
   els.soundButton.addEventListener("click", () => { saved.sound = !saved.sound; save(); updateBestCard(); if (saved.sound) sound("click"); });
   document.addEventListener("visibilitychange", () => { if (document.hidden && state.running && !state.paused) pauseGame(true); });
   document.addEventListener("keydown", event => { if (event.key === "Escape") { if (!els.howModal.classList.contains("hidden")) closeHow(false); else if (state.running) state.paused ? resumeGame() : pauseGame(false); } });
   els.howModal.addEventListener("click", event => { if (event.target === els.howModal) closeHow(false); });
 
-  updateBestCard(); syncChoices();
+  els.customWords.value = saved.customWords.join("\n");
+  els.customWords.addEventListener("input", updateCustomWords);
+  updateBestCard(); updateCustomWords();
 })();

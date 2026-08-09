@@ -6,6 +6,7 @@
   <meta name="theme-color" content="#11133f">
   <title>Космический переводчик</title>
   <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="custom-words.css">
 </head>
 <body>
   <div class="space-bg" aria-hidden="true">
@@ -40,26 +41,25 @@
         <h2 id="setupTitle">Настрой миссию</h2>
 
         <fieldset class="choice-group">
-          <legend><span>1</span> Выбери язык слов</legend>
-          <div class="choice-row two" id="languageChoices">
-            <button class="choice language" type="button" data-value="ru"><b>АБВ</b><span>Русский</span></button>
-            <button class="choice language" type="button" data-value="tr"><b>ABC</b><span>Türkçe</span></button>
-          </div>
-        </fieldset>
-
-        <fieldset class="choice-group">
-          <legend><span>2</span> Выбери тему</legend>
+          <legend><span>1</span> Выбери тему турецких слов</legend>
           <div class="choice-row topics" id="topicChoices">
             <button class="choice topic" type="button" data-value="animals"><b>🐾</b><span>Животные</span></button>
             <button class="choice topic" type="button" data-value="space"><b>🪐</b><span>Космос</span></button>
             <button class="choice topic" type="button" data-value="school"><b>📚</b><span>Школа</span></button>
             <button class="choice topic" type="button" data-value="food"><b>🍎</b><span>Еда</span></button>
             <button class="choice topic" type="button" data-value="sport"><b>🏀</b><span>Спорт</span></button>
+            <button class="choice topic" type="button" data-value="custom"><b>✍️</b><span>Свои слова</span></button>
           </div>
         </fieldset>
 
+        <div class="custom-words hidden" id="customWordsPanel">
+          <label for="customWords"><b>Напиши турецкие слова</b><span>По одному в строке или через запятую</span></label>
+          <textarea id="customWords" rows="5" spellcheck="false" placeholder="merhaba&#10;teşekkürler&#10;görüşürüz"></textarea>
+          <p id="customWordsStatus" aria-live="polite">Добавь хотя бы одно слово</p>
+        </div>
+
         <fieldset class="choice-group">
-          <legend><span>3</span> Выбери сложность</legend>
+          <legend><span>2</span> Выбери сложность</legend>
           <div class="choice-row three" id="difficultyChoices">
             <button class="choice difficulty" type="button" data-value="easy"><b>Легко</b><small>10 слов · 5 энергии</small></button>
             <button class="choice difficulty" type="button" data-value="medium"><b>Средне</b><small>15 слов · 4 энергии</small></button>
@@ -73,7 +73,7 @@
     <section class="screen game-screen" id="gameScreen" aria-labelledby="missionLabel">
       <div class="game-wrap">
         <header class="hud">
-          <div class="mission-name"><span class="mini-rocket">🚀</span><div><small>МИССИЯ</small><strong id="missionLabel">Космос · Русский</strong></div></div>
+          <div class="mission-name"><span class="mini-rocket">🚀</span><div><small>МИССИЯ</small><strong id="missionLabel">Космос · Türkçe</strong></div></div>
           <div class="hud-stats">
             <div><small>СЧЁТ</small><strong id="scoreValue">0</strong></div>
             <div><small>СЛОВО</small><strong id="progressValue">1 / 10</strong></div>
@@ -135,7 +135,7 @@
       <p class="eyebrow">Инструктаж экипажа</p>
       <h2 id="howTitle">Как играть</h2>
       <ol>
-        <li><span>1</span><p><b>Выбери миссию</b><br>Язык, тему слов и сложность.</p></li>
+        <li><span>1</span><p><b>Выбери миссию</b><br>Тему турецких слов и сложность — или добавь свой список.</p></li>
         <li><span>2</span><p><b>Печатай слово</b><br>Оно летит к твоему кораблю.</p></li>
         <li><span>3</span><p><b>Исправляй ошибки</b><br>Используй клавишу Backspace.</p></li>
         <li><span>4</span><p><b>Собирай серии</b><br>Точные ответы заряжают двигатель.</p></li>

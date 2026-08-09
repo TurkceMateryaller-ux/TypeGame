@@ -1,0 +1,28 @@
+.choice-row.topics { grid-template-columns: repeat(3, 1fr); }
+.custom-words {
+  margin: 18px 0 24px;
+  padding: 18px;
+  border: 1px solid #6571b855;
+  border-radius: 17px;
+  background: #0b103a99;
+}
+.custom-words.hidden { display: none; }
+.custom-words label b,
+.custom-words label span { display: block; }
+.custom-words label span,
+.custom-words p { color: var(--muted); font-size: 13px; }
+.custom-words textarea {
+  width: 100%;
+  margin-top: 12px;
+  padding: 14px;
+  border: 2px solid #5965a9;
+  border-radius: 14px;
+  resize: vertical;
+  background: #090d33;
+  color: #fff;
+  line-height: 1.5;
+  font: inherit;
+}
+.custom-words textarea:focus-visible { outline: 3px solid var(--yellow); outline-offset: 3px; }
+.custom-words p { margin: 8px 2px 0; }
+.custom-words p.valid { color: var(--green); }
